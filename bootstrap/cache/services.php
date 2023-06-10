@@ -40,11 +40,12 @@
     36 => 'Spatie\\Health\\HealthServiceProvider',
     37 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     38 => 'pcinaglia\\laraupdater\\LaraUpdaterServiceProvider',
-    39 => 'App\\Providers\\AppServiceProvider',
-    40 => 'App\\Providers\\AuthServiceProvider',
-    41 => 'App\\Providers\\EventServiceProvider',
-    42 => 'App\\Providers\\RouteServiceProvider',
-    43 => 'Amamarul\\LaravelJsonLocationsManager\\Providers\\LaravelJsonLocationsManagerServiceProvider',
+    39 => 'Laravel\\Socialite\\SocialiteServiceProvider',
+    40 => 'App\\Providers\\AppServiceProvider',
+    41 => 'App\\Providers\\AuthServiceProvider',
+    42 => 'App\\Providers\\EventServiceProvider',
+    43 => 'App\\Providers\\RouteServiceProvider',
+    44 => 'Amamarul\\LaravelJsonLocationsManager\\Providers\\LaravelJsonLocationsManagerServiceProvider',
   ),
   'eager' => 
   array (

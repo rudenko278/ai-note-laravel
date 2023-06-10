@@ -33,6 +33,8 @@ class User extends Authenticatable
         'email_confirmation_code',
         'email_confirmed',
         'password_reset_code',
+        'google_id',
+        'google_token',
     ];
 
     /**

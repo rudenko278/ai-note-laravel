@@ -17,16 +17,17 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthenticationController extends Controller
 {
-    public function githubCallback(){
+    public function githubCallback()
+    {
         $githubUser = Socialite::driver('github')->user();
         $checkUser = User::where('email', $githubUser->getEmail())->exists();
-        if ($checkUser){
+        if ($checkUser) {
             $user = User::where('email', $githubUser->getEmail())->first();
             $user->github_token = $githubUser->token;
             $user->github_refresh_token = $githubUser->refreshToken;
             $user->avatar = $githubUser->getAvatar();
             $user->save();
-        }else{
+        } else {
             $user = User::updateOrCreate([
                 'github_id' => $githubUser->id,
             ], [
@@ -44,6 +45,42 @@ class AuthenticationController extends Controller
         return redirect('/');
     }
 
+    public function googleCallback(Request $request)
+    {
+        try {
+
+            $user = Socialite::driver('google')->user();
+            // echo '<pre>';
+            // print_r($user);die;
+            $finduser = User::where('google_id', $user->id)->first();
+
+            if ($finduser) {
+                Auth::login($finduser);
+            } else {
+                $newUser = User::create([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'email_confirmation_code' => Str::random(67),
+                    'email_verification_code' => Str::random(67),
+                    'google_id' => $user->id,
+                    'google_token' => $user->token,
+                    'avatar' => $user->getAvatar(),
+                    'password' => Hash::make(Str::random(12)),
+                ]);
+
+                dispatch(new SendConfirmationEmail($newUser));
+
+                Auth::login($newUser);
+            }
+
+            $request->session()->regenerate();
+
+            return redirect()->intended(RouteServiceProvider::HOME);
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
     public function login(LoginRequest $request)
     {
         $request->authenticate();
@@ -53,7 +90,8 @@ class AuthenticationController extends Controller
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
-    public function registerCreate(){
+    public function registerCreate()
+    {
         return view('panel.authentication.register');
     }
 
@@ -63,20 +101,20 @@ class AuthenticationController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
         $affCode = null;
-        if ($request->affiliate_code != null){
+        if ($request->affiliate_code != null) {
             $affUser = User::where('affiliate_code', $request->affiliate_code)->first();
-            if ($affUser != null){
+            if ($affUser != null) {
                 $affCode = $affUser->id;
             }
         }
 
         //TODO DEMO
-        if (env('APP_STATUS') == 'Demo'){
+        if (env('APP_STATUS') == 'Demo') {
             $user = User::create([
                 'name' => $request->name,
                 'surname' => $request->surname,
@@ -89,7 +127,7 @@ class AuthenticationController extends Controller
                 'affiliate_id' => $affCode,
                 'affiliate_code' => Str::upper(Str::random(12)),
             ]);
-        }else{
+        } else {
             $user = User::create([
                 'name' => $request->name,
                 'surname' => $request->surname,
@@ -116,7 +154,8 @@ class AuthenticationController extends Controller
         return response()->json('OK', 200);
     }
 
-    public function PasswordResetCreate(){
+    public function PasswordResetCreate()
+    {
         return view('panel.authentication.password_reset');
     }
 }

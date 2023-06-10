@@ -20,7 +20,7 @@ use Carbon\Carbon;
 
 
 Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]], function() {
-    Route::prefix('dashboard')->middleware('auth')->name('dashboard.')->group(function () {
+    Route::prefix('dashboard')->middleware(['auth', 'email_verified'])->name('dashboard.')->group(function () {
 
         Route::get('/', [UserController::class, 'redirect'])->name('index');
 
